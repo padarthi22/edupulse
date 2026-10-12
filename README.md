@@ -1,44 +1,20 @@
-# EduPulse — AI-Based Student Academic Performance Prediction & Early Support System
+# EduPulse — Backend (Spring Boot + MongoDB + Gemini)
 
-Spring Boot 3 + MongoDB backend, React + Tailwind frontend. Single in-process
-rule-based scoring baseline (no Python, no scikit-learn — kept small per the
-"simple application" requirement). Everything AI goes through one
-`AiService` class that supports a **demo mode** (deterministic mocks) whenever
-`GEMINI_API_KEY` is blank — paste a real key in `.env` to flip to live Gemini.
+Decision-support platform for student academic risk. Single in-process
+rule-based scoring (kept small). All AI goes through one `AiService` class
+with a **demo mode** (deterministic mocks) whenever `GEMINI_API_KEY` is
+blank — paste a real key in `.env` to flip to live Gemini.
 
-## Project layout
-
-```
-backend/      Spring Boot 3 (Java 21) + MongoDB + Gemini gateway
-frontend/     Vite + React + Tailwind (monochrome UI, no gradients)
-docker-compose.yml
-```
+The frontend lives in a separate repo: `padarthi22/edupulse-frontend`.
 
 ## Run locally
 
 ```bash
-# 1) start Mongo
-docker run -d -p 27017:27017 mongo:7
-# or: brew services start mongodb-community
-
-# 2) backend
-cd backend
+docker run -d -p 27017:27017 mongo:7   # or use your MONGO_URI
 cp .env.example .env
-./mvnw spring-boot:run    # http://localhost:5050
-# To seed the demo data on first boot:
-EDUPULSE_SEED=true ./mvnw spring-boot:run
-# Or pass --seed to the run command line.
-
-# 3) frontend
-cd ../frontend
-npm install
-npm run dev                # http://localhost:5173
-```
-
-One command, all services:
-
-```bash
-docker compose up --build
+mvn spring-boot:run                    # http://localhost:5050
+# Seed demo data on first boot:
+EDUPULSE_SEED=true mvn spring-boot:run
 ```
 
 ## Demo credentials (after seed)
@@ -64,12 +40,12 @@ docker compose up --build
 
 ```
 POST /api/auth/login
-POST /api/auth/signup        { email, name, password, role, classId?, studentCode?, consent }
+POST /api/auth/signup
 GET  /api/auth/me
 GET  /api/students?classId=
 
-POST /api/ingest/<attendance|assessments|assignments|engagement|wellbeing>/csv  (multipart, teacher/admin)
-POST /api/ingest/attendance                                                      (manual, JSON)
+POST /api/ingest/<attendance|assessments|assignments|engagement|wellbeing>/csv
+POST /api/ingest/attendance
 
 POST /api/predict/{studentId}
 GET  /api/latest/{studentId}
@@ -87,7 +63,7 @@ POST /api/notifications/{id}/read
 GET  /api/admin/fairness            (admin)
 GET  /api/admin/metrics             (admin)
 GET  /api/features
-GET  /api/ai-usage                  (admin via MetaController)
+GET  /api/ai-usage
 ```
 
 ## CSV schemas
@@ -104,12 +80,13 @@ GET  /api/ai-usage                  (admin via MetaController)
 
 ## Deploy
 
-* **Frontend** — Vercel (`vercel.json` included). `npm run build` → static SPA.
-* **Backend** — Railway (or any Java 21 host). Set the env vars, run `java -jar`.
-* **Mongo** — Atlas free tier. Point `MONGO_URI` at it.
+```bash
+railway init
+railway up    # uses the included Dockerfile
+```
 
-`VITE_API_URL` is read by `lib/api.js` automatically if you set it on the
-frontend host; locally the Vite proxy handles `/api`.
+Then set env vars (`MONGO_URI`, `GEMINI_API_KEY`, `JWT_SECRET`,
+`WELLBEING_ENC_KEY`, `GEMINI_MODEL`) in the Railway dashboard.
 
 ## Safety
 
@@ -125,8 +102,7 @@ frontend host; locally the Vite proxy handles `/api`.
 ## Tests
 
 ```bash
-cd backend
-./mvnw test
+mvn test
 ```
 
 Two test classes:
@@ -136,6 +112,5 @@ Two test classes:
 ## Skipped (deliberate, add later)
 
 * SMTP delivery of weekly digests (stored as in-app notif today).
-* Real ML model — current scorer is a transparent weighted sum. Wire in a
-  Python microservice later if you want SHAP-style explanations.
+* Real ML model — current scorer is a transparent weighted sum.
 * Multi-tenant Redis rate limiter — single-instance only.
