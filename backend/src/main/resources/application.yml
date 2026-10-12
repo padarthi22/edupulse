@@ -18,7 +18,7 @@ edupulse:
     expires-in: 7d
   gemini:
     api-key: ${GEMINI_API_KEY:}
-    model: ${GEMINI_MODEL:gemini-2.5-flash}
+    model: ${GEMINI_MODEL:gemini-flash-lite-latest}
     daily-budget: 200000
   wellbeing:
     enc-key-hex: ${WELLBEING_ENC_KEY:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
