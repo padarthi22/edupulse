@@ -1,0 +1,36 @@
+server:
+  port: ${PORT:5050}
+
+spring:
+  data:
+    mongodb:
+      uri: ${MONGO_URI:mongodb://127.0.0.1:27017/edupulse}
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+edupulse:
+  jwt:
+    secret: ${JWT_SECRET:dev-only-secret-change-me-32bytes-minimum}
+    expires-in: 7d
+  gemini:
+    api-key: ${GEMINI_API_KEY:}
+    model: ${GEMINI_MODEL:gemini-2.5-flash}
+    daily-budget: 200000
+  wellbeing:
+    enc-key-hex: ${WELLBEING_ENC_KEY:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
+
+logging:
+  level:
+    root: INFO
+    com.edupulse: INFO
+    org.springframework.security: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

@@ -1,0 +1,20 @@
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+      - org.springframework.boot.autoconfigure.mongo.MongoReactiveAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration
+  main:
+    web-application-type: none
+
+edupulse:
+  jwt:
+    secret: test-secret-32-bytes-minimum-padding
+    expires-in: 7d
+  gemini:
+    api-key: ""
+    model: gemini-2.5-flash
+    daily-budget: 200000
+  wellbeing:
+    enc-key-hex: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef

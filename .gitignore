@@ -1,0 +1,20 @@
+# Java / Maven
+backend/target/
+backend/.idea/
+backend/*.iml
+backend/.vscode/
+
+# Node / Vite
+frontend/node_modules/
+frontend/dist/
+
+# Local data (Mongo binaries we run for local dev)
+.mongo-data/
+
+# Real env files (only .env.example is committed)
+.env
+.env.local
+
+# OS junk
+.DS_Store
+*.log
