@@ -52,14 +52,25 @@ public class SeedRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        boolean flag = Arrays.asList(args).contains("--seed") || "true".equals(System.getenv("EDUPULSE_SEED"));
-        if (!flag) return;
-        System.out.println("Seeding EduPulse (500 students)...");
-        wipe();
-        seedStudents(500);
+        boolean fullReseed = Arrays.asList(args).contains("--seed") || "true".equals(System.getenv("EDUPULSE_SEED"));
+        if (fullReseed) {
+            System.out.println("Seeding EduPulse (500 students + demo accounts)... [full wipe]");
+            wipe();
+            seedStudents(500);
+            seedAccounts();
+            seedSignals();
+            ensureAccounts(); // backstop in case seedAccounts skipped
+            System.out.println("Done. Login: teacher@edupulse.dev / password123 (also admin, student1@edupulse.dev)");
+            return;
+        }
+        // Always: ensure demo accounts exist (idempotent — does not touch signals or predictions).
+        ensureAccounts();
+    }
+
+    private void ensureAccounts() {
+        if (users.count() > 0) return;
+        System.out.println("Demo accounts missing — creating 1 teacher + 1 admin + 20 student accounts.");
         seedAccounts();
-        seedSignals();
-        System.out.println("Done. Login: teacher@edupulse.dev / password123 (also admin, student1@edupulse.dev)");
     }
 
     private void wipe() {

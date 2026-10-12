@@ -304,7 +304,8 @@ public class PredictionController {
             p.setExplanation((String) exp.getOrDefault("summary", null));
             p.setConfidence((String) exp.getOrDefault("confidence", null));
         }
-        predictions.save(p);
+        // Save after setting explanation + confidence so the fields land in Mongo.
+        Prediction saved = predictions.save(p);
         return Map.of(
             "prediction", p,
             "features", f.asMap(),
