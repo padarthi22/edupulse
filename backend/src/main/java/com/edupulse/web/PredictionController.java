@@ -6,6 +6,7 @@ import com.edupulse.scoring.FeatureAggregator;
 import com.edupulse.scoring.RuleScorer;
 import com.edupulse.service.AiService;
 import com.edupulse.util.Crypto;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -322,10 +323,11 @@ public class PredictionController {
     }
 
     private void ensureCanRead(String studentId, Principal principal) {
-        if (principal == null) throw new SecurityException("unauthenticated");
-        var u = users.findById(principal.getName()).orElseThrow();
+        if (principal == null) throw new org.springframework.web.server.ResponseStatusException(HttpStatus.UNAUTHORIZED, "unauthenticated");
+        var u = users.findById(principal.getName()).orElseThrow(() ->
+            new org.springframework.web.server.ResponseStatusException(HttpStatus.UNAUTHORIZED, "unknown_user"));
         if ("student".equals(u.getRole()) && !studentId.equals(u.getStudentProfile())) {
-            throw new SecurityException("forbidden");
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.FORBIDDEN, "forbidden");
         }
     }
 
@@ -341,15 +343,15 @@ public class PredictionController {
     private static double round(double x) { return Math.round(x * 1000.0) / 1000.0; }
 
     private Map<String, Object> toSimple(Prediction p) {
-        return Map.of(
-            "id", p.getId(),
-            "computedAt", p.getComputedAt(),
-            "riskBand", p.getRiskBand(),
-            "riskScore", p.getRiskScore(),
-            "passProbability", p.getPassProbability(),
-            "predictedGradeBand", p.getPredictedGradeBand(),
-            "explanation", p.getExplanation() == null ? "" : p.getExplanation(),
-            "confidence", p.getConfidence() == null ? "" : p.getConfidence()
-        );
+        java.util.LinkedHashMap<String, Object> m = new java.util.LinkedHashMap<>();
+        m.put("id", p.getId());
+        m.put("computedAt", p.getComputedAt());
+        m.put("riskBand", p.getRiskBand());
+        m.put("riskScore", p.getRiskScore());
+        m.put("passProbability", p.getPassProbability());
+        m.put("predictedGradeBand", p.getPredictedGradeBand());
+        m.put("explanation", p.getExplanation() == null ? "" : p.getExplanation());
+        m.put("confidence", p.getConfidence() == null ? "" : p.getConfidence());
+        return m;
     }
 }
