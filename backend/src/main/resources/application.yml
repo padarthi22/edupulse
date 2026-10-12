@@ -10,7 +10,10 @@ spring:
       max-file-size: 5MB
       max-request-size: 10MB
   jackson:
-    property-naming-strategy: SNAKE_CASE
+    # NOTE: never set a global SNAKE_CASE strategy here — Java records bind
+    # their component names verbatim, and a global strategy silently breaks
+    # every record DTO + every @RequestBody Map<String,Object> path.
+    # Components in this app are camelCase by convention; live with it.
 
 edupulse:
   jwt:
